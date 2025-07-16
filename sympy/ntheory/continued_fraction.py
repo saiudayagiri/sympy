@@ -69,7 +69,8 @@ def continued_fraction(a) -> list:
                         # (a + b*sqrt(c))/d
                         c = c.base
                         return continued_fraction_periodic(a, d, c, b)
-    raise ValueError(f"expecting a rational or quadratic irrational, not {e}")
+    raise ValueError(
+        'expecting a rational or quadratic irrational, not %s' % e)
 
 
 def continued_fraction_periodic(p, q, d=0, s=1) -> list:
@@ -134,7 +135,7 @@ def continued_fraction_periodic(p, q, d=0, s=1) -> list:
     p, q, d, s = list(map(as_int, [p, q, d, s]))
 
     if d < 0:
-        raise ValueError(f"expected non-negative for `d` but got {d}")
+        raise ValueError("expected non-negative for `d` but got %s" % d)
 
     if q == 0:
         raise ValueError("The denominator cannot be 0.")

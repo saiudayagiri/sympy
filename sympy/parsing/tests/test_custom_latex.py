@@ -1,6 +1,5 @@
 import os
 import tempfile
-from pathlib import Path
 
 import sympy
 from sympy.testing.pytest import raises
@@ -24,7 +23,9 @@ modification2 = r"""
 """
 
 def init_custom_parser(modification, transformer=None):
-    latex_grammar = Path(grammar_file).read_text(encoding="utf-8")
+    with open(grammar_file, encoding="utf-8") as f:
+        latex_grammar = f.read()
+
     latex_grammar += modification
 
     with tempfile.NamedTemporaryFile() as f:

@@ -79,7 +79,7 @@ class BinaryRelation(Predicate):
 
     def __call__(self, *args):
         if not len(args) == 2:
-            raise ValueError(f"Binary relation takes two arguments, but got {len(args)}.")
+            raise ValueError("Binary relation takes two arguments, but got %s." % len(args))
         return AppliedBinaryRelation(self, *args)
 
     @property
@@ -208,5 +208,5 @@ class AppliedBinaryRelation(AppliedPredicate):
     def __bool__(self):
         ret = ask(self)
         if ret is None:
-            raise TypeError(f"Cannot determine truth value of {self}")
+            raise TypeError("Cannot determine truth value of %s" % self)
         return ret

@@ -1,6 +1,5 @@
-from sympy.core import S, diff, Tuple, Dummy, Mul
+from sympy.core import S, Function, diff, Tuple, Dummy, Mul
 from sympy.core.basic import Basic, as_Basic
-from sympy.core.function import DefinedFunction
 from sympy.core.numbers import Rational, NumberSymbol, _illegal
 from sympy.core.parameters import global_parameters
 from sympy.core.relational import (Lt, Gt, Eq, Ne, Relational,
@@ -62,7 +61,7 @@ class ExprCondPair(Tuple):
         return self.func(*[a.simplify(**kwargs) for a in self.args])
 
 
-class Piecewise(DefinedFunction):
+class Piecewise(Function):
     """
     Represents a piecewise function.
 

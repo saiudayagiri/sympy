@@ -353,7 +353,6 @@ class FreeGroupElement(CantSympify, DefaultPrinting, tuple):
     `FreeGroup` class.
 
     """
-    __slots__ = ()
     is_assoc_word = True
 
     def new(self, init):

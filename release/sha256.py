@@ -20,7 +20,8 @@ def main(version, outdir):
     out = '\n'.join(["%s\t%s" % (i, os.path.split(j)[1]) for i, j in out])
 
     # Output to file and to screen
-    Path(outdir / 'sha256.txt').write_text(out)
+    with open(outdir / 'sha256.txt', 'w') as shafile:
+        shafile.write(out)
     print(out)
 
 

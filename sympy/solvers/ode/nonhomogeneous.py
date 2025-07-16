@@ -8,7 +8,7 @@ All the functions in this file are used by more than one solvers so, instead of 
 instances in other classes for using them it is better to keep it here as separate helpers.
 
 """
-from collections import Counter
+from collections import defaultdict
 from sympy.core import Add, S
 from sympy.core.function import diff, expand, _mexpand, expand_mul
 from sympy.core.relational import Eq
@@ -83,7 +83,9 @@ def _get_euler_characteristic_eq_sols(eq, func, match_obj):
     constants.reverse()
 
     # Create a dict root: multiplicity or charroots
-    charroots = Counter(chareqroots)
+    charroots = defaultdict(int)
+    for root in chareqroots:
+        charroots[root] += 1
     gsol = S.Zero
     ln = log
     for root, multiplicity in charroots.items():
@@ -202,7 +204,9 @@ def _get_const_characteristic_eq_sols(r, func, order):
     chareq_is_complex = not all(i.is_real for i in chareq.all_coeffs())
 
     # Create a dict root: multiplicity or charroots
-    charroots = Counter(chareqroots)
+    charroots = defaultdict(int)
+    for root in chareqroots:
+        charroots[root] += 1
     # We need to keep track of terms so we can run collect() at the end.
     # This is necessary for constantsimp to work properly.
     collectterms = []

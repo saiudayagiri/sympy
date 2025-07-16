@@ -1,7 +1,6 @@
 """Implementation of RootOf class and related tools. """
 
 
-
 from sympy.core.basic import Basic
 from sympy.core import (S, Expr, Integer, Float, I, oo, Add, Lambda,
     symbols, sympify, Rational, Dummy)
@@ -1062,7 +1061,7 @@ CRootOf = ComplexRootOf
 
 @dispatch(ComplexRootOf, ComplexRootOf)
 def _eval_is_eq(lhs, rhs): # noqa:F811
-    # if we use is_eq to check here, we get infinite recursion
+    # if we use is_eq to check here, we get infinite recurion
     return lhs == rhs
 
 

@@ -1,3 +1,4 @@
+from sympy.core.expr import Expr
 from sympy.core.function import (Derivative, Function, Lambda, expand, PoleError)
 from sympy.core.numbers import (E, I, Rational, comp, nan, oo, pi, zoo)
 from sympy.core.relational import Eq
@@ -21,7 +22,7 @@ from sympy.core.expr import unchanged
 from sympy.core.function import ArgumentIndexError
 from sympy.series.order import Order
 from sympy.testing.pytest import XFAIL, raises, _both_exp_pow
-from sympy.physics.quantum import HermitianOperator
+
 
 def N_equals(a, b):
     """Check whether two complex numbers are numerically close"""
@@ -683,17 +684,22 @@ def test_arg_leading_term_and_series():
 
 
 def test_adjoint():
-    b = HermitianOperator("b")
+    a = Symbol('a', antihermitian=True)
+    b = Symbol('b', hermitian=True)
+    assert adjoint(a) == -a
+    assert adjoint(I*a) == I*a
     assert adjoint(b) == b
     assert adjoint(I*b) == -I*b
+    assert adjoint(a*b) == -b*a
+    assert adjoint(I*a*b) == I*b*a
 
     x, y = symbols('x y')
     assert adjoint(adjoint(x)) == x
-    assert adjoint(x + y) == conjugate(x) + conjugate(y)
-    assert adjoint(x - y) == conjugate(x) - conjugate(y)
-    assert adjoint(x * y) == conjugate(x) * conjugate(y)
-    assert adjoint(x / y) == conjugate(x) / conjugate(y)
-    assert adjoint(-x) == -conjugate(x)
+    assert adjoint(x + y) == adjoint(x) + adjoint(y)
+    assert adjoint(x - y) == adjoint(x) - adjoint(y)
+    assert adjoint(x * y) == adjoint(x) * adjoint(y)
+    assert adjoint(x / y) == adjoint(x) / adjoint(y)
+    assert adjoint(-x) == -adjoint(x)
 
     x, y = symbols('x y', commutative=False)
     assert adjoint(adjoint(x)) == x
@@ -731,7 +737,7 @@ def test_conjugate():
 
 
 def test_conjugate_transpose():
-    x = Symbol('x', commutative=False)
+    x = Symbol('x')
     assert conjugate(transpose(x)) == adjoint(x)
     assert transpose(conjugate(x)) == adjoint(x)
     assert adjoint(transpose(x)) == conjugate(x)
@@ -739,7 +745,16 @@ def test_conjugate_transpose():
     assert adjoint(conjugate(x)) == transpose(x)
     assert conjugate(adjoint(x)) == transpose(x)
 
-    x = Symbol('x')
+    class Symmetric(Expr):
+        def _eval_adjoint(self):
+            return None
+
+        def _eval_conjugate(self):
+            return None
+
+        def _eval_transpose(self):
+            return self
+    x = Symmetric()
     assert conjugate(x) == adjoint(x)
     assert transpose(x) == x
 
@@ -751,11 +766,11 @@ def test_transpose():
 
     x, y = symbols('x y')
     assert transpose(transpose(x)) == x
-    assert transpose(x + y) == x + y
-    assert transpose(x - y) == x - y
-    assert transpose(x * y) == x * y
-    assert transpose(x / y) == x / y
-    assert transpose(-x) == -x
+    assert transpose(x + y) == transpose(x) + transpose(y)
+    assert transpose(x - y) == transpose(x) - transpose(y)
+    assert transpose(x * y) == transpose(x) * transpose(y)
+    assert transpose(x / y) == transpose(x) / transpose(y)
+    assert transpose(-x) == -transpose(x)
 
     x, y = symbols('x y', commutative=False)
     assert transpose(transpose(x)) == x

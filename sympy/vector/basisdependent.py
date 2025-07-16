@@ -79,7 +79,7 @@ class BasisDependent(Expr):
 
     evalf.__doc__ += Expr.evalf.__doc__  # type: ignore
 
-    n = evalf # type: ignore
+    n = evalf
 
     def simplify(self, **kwargs):
         """
@@ -203,8 +203,9 @@ class BasisDependentAdd(BasisDependent, Add):
             if arg == cls.zero:
                 continue
             # Else, update components accordingly
-            for x in arg.components:
-                components[x] = components.get(x, 0) + arg.components[x]
+            if hasattr(arg, "components"):
+                for x in arg.components:
+                    components[x] = components.get(x, 0) + arg.components[x]
 
         temp = list(components.keys())
         for x in temp:
@@ -234,17 +235,6 @@ class BasisDependentMul(BasisDependent, Mul):
     """
 
     def __new__(cls, *args, **options):
-        obj = cls._new(*args, **options)
-        return obj
-
-    def _new_rawargs(self, *args):
-        # XXX: This is needed because Add.flatten() uses it but the default
-        # implementation does not work for Vectors because they assign
-        # attributes outside of .args.
-        return type(self)(*args)
-
-    @classmethod
-    def _new(cls, *args, **options):
         from sympy.vector import Cross, Dot, Curl, Gradient
         count = 0
         measure_number = S.One
@@ -258,7 +248,7 @@ class BasisDependentMul(BasisDependent, Mul):
             if isinstance(arg, cls._zero_func):
                 count += 1
                 zeroflag = True
-            elif arg == S.Zero or arg == 0.0:
+            elif arg == S.Zero:
                 zeroflag = True
             elif isinstance(arg, (cls._base_func, cls._mul_func)):
                 count += 1

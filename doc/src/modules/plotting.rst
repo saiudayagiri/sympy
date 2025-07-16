@@ -82,9 +82,6 @@ Series Classes
 .. autoclass:: sympy.plotting.series::ParametricSurfaceSeries
    :members:
 
-.. autoclass:: sympy.plotting.series::GenericDataSeries
-   :members:
-
 .. autoclass:: sympy.plotting.series::ImplicitSeries
    :members:
 

@@ -322,7 +322,7 @@ class Sieve:
         test = _as_int_ceiling(n)
         n = as_int(n)
         if n < 2:
-            raise ValueError(f"n should be >= 2 but got: {n}")
+            raise ValueError("n should be >= 2 but got: %s" % n)
         if n > self._list[-1]:
             self.extend(n)
         b = bisect(self._list, n)

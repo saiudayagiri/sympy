@@ -15,4 +15,3 @@ Control
    control.rst
    lti.rst
    control_plots.rst
-   routh_table.rst

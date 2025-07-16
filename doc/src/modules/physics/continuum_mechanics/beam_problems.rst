@@ -1,5 +1,3 @@
-.. _beam_problems:
-
 ===========================================================
 Solving Beam Bending Problems using Singularity Functions
 ===========================================================

@@ -4,7 +4,7 @@
 from sympy.core import EulerGamma # Must be imported from core, not core.numbers
 from sympy.core.add import Add
 from sympy.core.cache import cacheit
-from sympy.core.function import DefinedFunction, ArgumentIndexError, expand_mul
+from sympy.core.function import Function, ArgumentIndexError, expand_mul
 from sympy.core.logic import fuzzy_or
 from sympy.core.numbers import I, pi, Rational, Integer
 from sympy.core.relational import is_eq
@@ -46,7 +46,7 @@ def real_to_real_as_real_imag(self, deep=True, **hints):
 ###############################################################################
 
 
-class erf(DefinedFunction):
+class erf(Function):
     r"""
     The Gauss error function.
 
@@ -152,7 +152,7 @@ class erf(DefinedFunction):
                 return S.Zero
 
         if isinstance(arg, erfinv):
-            return arg.args[0]
+             return arg.args[0]
 
         if isinstance(arg, erfcinv):
             return S.One - arg.args[0]
@@ -285,7 +285,7 @@ class erf(DefinedFunction):
     as_real_imag = real_to_real_as_real_imag
 
 
-class erfc(DefinedFunction):
+class erfc(Function):
     r"""
     Complementary Error Function.
 
@@ -479,7 +479,7 @@ class erfc(DefinedFunction):
         return S.One - erf(*self.args)._eval_aseries(n, args0, x, logx)
 
 
-class erfi(DefinedFunction):
+class erfi(Function):
     r"""
     Imaginary error function.
 
@@ -671,7 +671,7 @@ class erfi(DefinedFunction):
         return super(erfi, self)._eval_aseries(n, args0, x, logx)
 
 
-class erf2(DefinedFunction):
+class erf2(Function):
     r"""
     Two-argument error function.
 
@@ -816,7 +816,7 @@ class erf2(DefinedFunction):
     def _eval_is_zero(self):
         return is_eq(*self.args)
 
-class erfinv(DefinedFunction):
+class erfinv(Function):
     r"""
     Inverse Error Function. The erfinv function is defined as:
 
@@ -903,13 +903,13 @@ class erfinv(DefinedFunction):
             return -nz.args[0]
 
     def _eval_rewrite_as_erfcinv(self, z, **kwargs):
-        return erfcinv(1-z)
+       return erfcinv(1-z)
 
     def _eval_is_zero(self):
         return self.args[0].is_zero
 
 
-class erfcinv (DefinedFunction):
+class erfcinv (Function):
     r"""
     Inverse Complementary Error Function. The erfcinv function is defined as:
 
@@ -992,7 +992,7 @@ class erfcinv (DefinedFunction):
         return fuzzy_or([z.is_zero, is_eq(z, Integer(2))])
 
 
-class erf2inv(DefinedFunction):
+class erf2inv(Function):
     r"""
     Two-argument Inverse error function. The erf2inv function is defined as:
 
@@ -1089,7 +1089,7 @@ class erf2inv(DefinedFunction):
 #################### EXPONENTIAL INTEGRALS ####################################
 ###############################################################################
 
-class Ei(DefinedFunction):
+class Ei(Function):
     r"""
     The classical exponential integral.
 
@@ -1202,8 +1202,8 @@ class Ei(DefinedFunction):
 
     def _eval_evalf(self, prec):
         if (self.args[0]/polar_lift(-1)).is_positive:
-            return super()._eval_evalf(prec) + (I*pi)._eval_evalf(prec)
-        return super()._eval_evalf(prec)
+            return Function._eval_evalf(self, prec) + (I*pi)._eval_evalf(prec)
+        return Function._eval_evalf(self, prec)
 
     def _eval_rewrite_as_uppergamma(self, z, **kwargs):
         from sympy.functions.special.gamma_functions import uppergamma
@@ -1272,7 +1272,7 @@ class Ei(DefinedFunction):
         return super(Ei, self)._eval_aseries(n, args0, x, logx)
 
 
-class expint(DefinedFunction):
+class expint(Function):
     r"""
     Generalized exponential integral.
 
@@ -1499,7 +1499,7 @@ def E1(z):
     return expint(1, z)
 
 
-class li(DefinedFunction):
+class li(Function):
     r"""
     The classical logarithmic integral.
 
@@ -1666,7 +1666,7 @@ class li(DefinedFunction):
         if z.is_zero:
             return True
 
-class Li(DefinedFunction):
+class Li(Function):
     r"""
     The offset logarithmic integral.
 
@@ -1762,7 +1762,7 @@ class Li(DefinedFunction):
 #################### TRIGONOMETRIC INTEGRALS ##################################
 ###############################################################################
 
-class TrigonometricIntegral(DefinedFunction):
+class TrigonometricIntegral(Function):
     """ Base class for trigonometric integrals. """
 
 
@@ -2324,7 +2324,7 @@ class Chi(TrigonometricIntegral):
 #################### FRESNEL INTEGRALS ########################################
 ###############################################################################
 
-class FresnelIntegral(DefinedFunction):
+class FresnelIntegral(Function):
     """ Base class for the Fresnel integrals."""
 
     unbranched = True
@@ -2707,7 +2707,7 @@ class fresnelc(FresnelIntegral):
 ###############################################################################
 
 
-class _erfs(DefinedFunction):
+class _erfs(Function):
     """
     Helper function to make the $\\mathrm{erf}(z)$ function
     tractable for the Gruntz algorithm.
@@ -2756,7 +2756,7 @@ class _erfs(DefinedFunction):
         return (S.One - erf(z))*exp(z**2)
 
 
-class _eis(DefinedFunction):
+class _eis(Function):
     """
     Helper function to make the $\\mathrm{Ei}(z)$ and $\\mathrm{li}(z)$
     functions tractable for the Gruntz algorithm.

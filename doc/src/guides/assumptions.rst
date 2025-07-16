@@ -278,7 +278,7 @@ that would affect the behaviour of :func:`~.solve`:
     [1]
 
 When using string input SymPy will create the expression and create all of the
-symbolic implicitly so the question arises how can the assumptions be
+symbolc implicitly so the question arises how can the assumptions be
 specified? The answer is that rather than depending on implicit string
 conversion it is better to use the :func:`~.parse_expr` function explicitly
 and then it is possible to provide assumptions for the symbols e.g.:
@@ -326,6 +326,7 @@ The full set of known predicates for a symbol can be accessed using the
      'extended_positive': True,
      'extended_real': True,
      'finite': True,
+     'hermitian': True,
      'imaginary': False,
      'infinite': False,
      'integer': True,
@@ -384,6 +385,16 @@ A full table of the possible predicates and their definitions is given below.
         [infinite]_
       - | ``== !infinite``
 
+    * - ``hermitian``
+      - An element of the field of Hermitian operators.
+        [antihermitian]_
+      -
+
+    * - ``antihermitian``
+      - An element of the field of antihermitian operators.
+        [antihermitian]_
+      -
+
     * - ``complex``
       - A complex number, $z\in\mathbb{C}$. Any number of the form $x + iy$
         where $x$ and $y$ are ``real`` and $i = \sqrt{-1}$. All ``complex``
@@ -428,6 +439,7 @@ A full table of the possible predicates and their definitions is given below.
       - | ``-> complex``
         | ``== (extended_real & finite)``
         | ``== (negative | zero | positive)``
+        | ``-> hermitian``
 
     * - ``imaginary``
       - An imaginary number, $z\in\mathbb{I}-\{0\}$. A number of the form $z=yi$
@@ -436,6 +448,7 @@ A full table of the possible predicates and their definitions is given below.
         ``zero`` is `not` considered ``imaginary`` in SymPy.
         [imaginary]_
       - | ``-> complex``
+        | ``-> antihermitian``
         | ``-> !extended_real``
 
     * - ``rational``
@@ -568,6 +581,7 @@ References for the above definitions
 
 .. [commutative] https://en.wikipedia.org/wiki/Commutative_property
 .. [infinite] https://en.wikipedia.org/wiki/Infinity
+.. [antihermitian] https://en.wikipedia.org/wiki/Skew-Hermitian_matrix
 .. [complex] https://en.wikipedia.org/wiki/Complex_number
 .. [algebraic] https://en.wikipedia.org/wiki/Algebraic_number
 .. [transcendental] https://en.wikipedia.org/wiki/Transcendental_number
@@ -729,6 +743,7 @@ predicates that will help in further manipulations:
      'complex': True,
      'extended_real': True,
      'finite': True,
+     'hermitian': True,
      'imaginary': False,
      'infinite': False,
      'integer': True,
@@ -1192,6 +1207,7 @@ object directly like (full output omitted):
     >>> from sympy.core.assumptions import _assume_rules
     >>> _assume_rules.defined_facts   # doctest: +SKIP
     {'algebraic',
+     'antihermitian',
      'commutative',
      'complex',
      'composite',
@@ -1250,6 +1266,7 @@ set of all such assumptions for class ``A`` can be seen in
      'extended_positive': True,
      'extended_real': True,
      'finite': True,
+     'hermitian': True,
      'imaginary': False,
      'infinite': False,
      'negative': False,
@@ -1296,6 +1313,7 @@ as well. At that point the query is resolved and the value returned.
      'extended_positive': True,
      'extended_real': True,
      'finite': True,
+     'hermitian': True,
      'imaginary': False,
      'infinite': False,
      'irrational': False,
@@ -1336,6 +1354,7 @@ to resolve the query are exhausted ``None`` will be cached and returned.
      'extended_positive': True,
      'extended_real': True,
      'finite': True,
+     'hermitian': True,
      'imaginary': False,
      'infinite': False,
      'irrational': False,

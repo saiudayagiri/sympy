@@ -77,6 +77,7 @@ def DEBUG_WRAP(func):
 
 def _debug(text):
     from sympy import SYMPY_DEBUG
+    global _LT_level
 
     if SYMPY_DEBUG:
         print('-LT- %s%s' % ('  '*_LT_level, text), file=sys.stderr)
@@ -297,7 +298,7 @@ def _laplace_transform_integration(f, t, s_, *, simplify):
 @DEBUG_WRAP
 def _laplace_deep_collect(f, t):
     """
-    This is an internal helper function that traverses through the expression
+    This is an internal helper function that traverses through the epression
     tree of `f(t)` and collects arguments. The purpose of it is that
     anything like `f(w*t-1*t-c)` will be written as `f((w-1)*t-c)` such that
     it can match `f(a*t+b)`.
@@ -974,7 +975,7 @@ def _laplace_expand(f, t, s):
     """
     This function tries to expand its argument with successively stronger
     methods: first it will expand on the top level, then it will expand any
-    multiplications in depth, then it will try all available expansion methods,
+    multiplications in depth, then it will try all avilable expansion methods,
     and finally it will try to expand trigonometric functions.
 
     If it can expand, it will then compute the Laplace transform of the

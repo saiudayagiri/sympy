@@ -1162,7 +1162,7 @@ class Permutation(Atom):
                     cyclic_form.append(cycle)
                     assert cycle == list(minlex(cycle))
         cyclic_form.sort()
-        self._cyclic_form = cyclic_form.copy()
+        self._cyclic_form = cyclic_form[:]
         return cyclic_form
 
     @property

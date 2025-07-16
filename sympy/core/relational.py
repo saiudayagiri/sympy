@@ -52,8 +52,6 @@ def _canonical_coeff(rel):
     rel = rel.canonical
     if not rel.is_Relational or rel.rhs.is_Boolean:
         return rel  # Eq(x, True)
-    if not isinstance(rel.lhs, Expr):
-        return rel.reversed  # e.g.: Eq(True, x) -> Eq(x, True)
     b, l = rel.lhs.as_coeff_Add(rational=True)
     m, lhs = l.as_coeff_Mul(rational=True)
     rhs = (rel.rhs - b)/m
@@ -515,7 +513,7 @@ class Relational(Boolean, EvalfMixin):
         args = (arg.expand(**kwargs) for arg in self.args)
         return self.func(*args)
 
-    def __bool__(self) -> bool:
+    def __bool__(self):
         raise TypeError(
             LazyExceptionMessage(
                 lambda: f"cannot determine truth value of Relational: {self}"

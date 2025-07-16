@@ -85,9 +85,8 @@ sample.tex
 # pytest related data file for slow tests
 .ci/durations.log
 
-# Files for pyodide tests
-/.pyodide-xbuildenv-*
+# Files for pyodide test
+pyodide
 
 # Ignore hypothesis files
 .hypothesis
-

@@ -6,6 +6,7 @@ from sympy.vector.operators import gradient, curl, divergence
 from sympy.core.function import diff
 from sympy.core.singleton import S
 from sympy.integrals.integrals import integrate
+from sympy.simplify.simplify import simplify
 from sympy.core import sympify
 from sympy.vector.dyadic import Dyadic
 
@@ -503,7 +504,7 @@ def orthogonalize(*vlist, orthonormal=False):
         # TODO : The following line introduces a performance issue
         # and needs to be changed once a good solution for issue #10279 is
         # found.
-        if term.equals(Vector.zero):
+        if simplify(term).equals(Vector.zero):
             raise ValueError("Vector set not linearly independent")
         ortho_vlist.append(term)
 

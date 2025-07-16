@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from .assumptions import StdFactKB, _assume_defined
 from .basic import Basic, Atom
 from .cache import cacheit
@@ -204,12 +203,7 @@ def uniquely_named_symbol(xname, exprs=(), compare=str, modify=None, **assumptio
     return _symbol(x, default, **assumptions)
 _uniquely_named_symbol = uniquely_named_symbol
 
-
-# XXX: We need type: ignore below because Expr and Boolean are incompatible as
-# superclasses. Really Symbol should not be a subclass of Boolean.
-
-
-class Symbol(AtomicExpr, Boolean): # type: ignore
+class Symbol(AtomicExpr, Boolean):
     """
     Symbol class is used to create symbolic variables.
 
@@ -348,7 +342,7 @@ class Symbol(AtomicExpr, Boolean): # type: ignore
         #
         assumptions_orig = assumptions.copy()
 
-        # The only assumption that is assumed by default is commutative=True:
+        # The only assumption that is assumed by default is comutative=True:
         assumptions.setdefault('commutative', True)
 
         assumptions_kb = StdFactKB(assumptions)
@@ -369,7 +363,7 @@ class Symbol(AtomicExpr, Boolean): # type: ignore
 
         obj._assumptions = assumptions_kb
         obj._assumptions_orig = assumptions_orig
-        obj._assumptions0 = tuple(sorted(assumptions0.items()))
+        obj._assumptions0 = assumptions0
 
         # The three assumptions dicts are all a little different:
         #
@@ -408,7 +402,8 @@ class Symbol(AtomicExpr, Boolean): # type: ignore
             setattr(self, name, value)
 
     def _hashable_content(self):
-        return (self.name,) + self._assumptions0
+        # Note: user-specified assumptions not hashed, just derived ones
+        return (self.name,) + tuple(sorted(self.assumptions0.items()))
 
     def _eval_subs(self, old, new):
         if old.is_Pow:
@@ -420,7 +415,7 @@ class Symbol(AtomicExpr, Boolean): # type: ignore
 
     @property
     def assumptions0(self):
-        return dict(self._assumptions0)
+        return self._assumptions0.copy()
 
     @cacheit
     def sort_key(self, order=None):

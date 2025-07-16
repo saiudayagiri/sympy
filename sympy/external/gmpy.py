@@ -1,8 +1,7 @@
-from __future__ import annotations
 import os
 from ctypes import c_long, sizeof
 from functools import reduce
-from typing import Type
+from typing import Tuple as tTuple, Type
 from warnings import warn
 
 from sympy.external import import_module
@@ -190,7 +189,7 @@ LONG_MAX = (1 << (8*sizeof(c_long) - 1)) - 1
 # Type checkers are confused by what SYMPY_INTS is. There may be a better type
 # hint for this like Type[Integral] or something.
 #
-SYMPY_INTS: tuple[Type, ...]
+SYMPY_INTS: tTuple[Type, ...]
 
 if _SYMPY_GROUND_TYPES == 'gmpy':
 

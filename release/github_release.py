@@ -1,18 +1,14 @@
 #!/usr/bin/env python
 
 import os
-import stat
 import json
 from subprocess import check_output
 from collections import OrderedDict, defaultdict
 from collections.abc import Mapping
 import glob
 from contextlib import contextmanager
-from getpass import getpass
-from pathlib import Path
 
 import requests
-from requests.auth import HTTPBasicAuth
 from requests_oauthlib import OAuth2
 
 
@@ -358,7 +354,8 @@ def save_token_file(token):
     try:
         if not os.path.isdir(token_folder):
             os.mkdir(token_folder, 0o700)
-        Path(token_file_expand).write_text(token + '\n')
+        with open(token_file_expand, 'w') as f:
+            f.write(token + '\n')
         os.chmod(token_file_expand, stat.S_IREAD | stat.S_IWRITE)
     except OSError as e:
         print("> Unable to create folder for token file: ", e)

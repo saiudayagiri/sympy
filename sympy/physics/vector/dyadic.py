@@ -94,7 +94,7 @@ class Dyadic(Printable, EvalfMixin):
         """
         newlist = list(self.args)
         other = sympify(other)
-        for i in range(len(newlist)):
+        for i, v in enumerate(newlist):
             newlist[i] = (other * newlist[i][0], newlist[i][1],
                           newlist[i][2])
         return Dyadic(newlist)
@@ -171,7 +171,7 @@ class Dyadic(Printable, EvalfMixin):
         if len(ar) == 0:
             return str(0)
         ol = []  # output list, to be concatenated to a string
-        for v in ar:
+        for i, v in enumerate(ar):
             # if the coef of the dyadic is 1, we skip the 1
             if v[0] == 1:
                 ol.append(' + ' + printer._print(v[1]) + r"\otimes " +
@@ -215,7 +215,7 @@ class Dyadic(Printable, EvalfMixin):
                     return str(0)
                 bar = "\N{CIRCLED TIMES}" if printer._use_unicode else "|"
                 ol = []  # output list, to be concatenated to a string
-                for v in ar:
+                for i, v in enumerate(ar):
                     # if the coef of the dyadic is 1, we skip the 1
                     if v[0] == 1:
                         ol.extend([" + ",
@@ -265,7 +265,7 @@ class Dyadic(Printable, EvalfMixin):
         if len(ar) == 0:
             return printer._print(0)
         ol = []  # output list, to be concatenated to a string
-        for v in ar:
+        for i, v in enumerate(ar):
             # if the coef of the dyadic is 1, we skip the 1
             if v[0] == 1:
                 ol.append(' + (' + printer._print(v[1]) + '|' +

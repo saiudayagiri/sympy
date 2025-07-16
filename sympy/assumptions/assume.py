@@ -71,7 +71,7 @@ class AssumptionsContext(set):
 
     def _sympystr(self, printer):
         if not self:
-            return f"{self.__class__.__name__}()"
+            return "%s()" % self.__class__.__name__
         return "{}({})".format(self.__class__.__name__, printer._print_set(self))
 
 global_assumptions = AssumptionsContext()
@@ -110,7 +110,7 @@ class AppliedPredicate(Boolean):
 
     def __new__(cls, predicate, *args):
         if not isinstance(predicate, Predicate):
-            raise TypeError(f"{predicate} is not a Predicate.")
+            raise TypeError("%s is not a Predicate." % predicate)
         args = map(_sympify, args)
         return super().__new__(cls, predicate, *args)
 
@@ -176,7 +176,7 @@ class PredicateMeta(type):
         # If handler is not defined, assign empty dispatcher.
         if "handler" not in dct:
             name = f"Ask{clsname.capitalize()}Handler"
-            handler = Dispatcher(name, doc=f"Handler for key {name}")
+            handler = Dispatcher(name, doc="Handler for key %s" % name)
             dct["handler"] = handler
 
         dct["_orig_doc"] = dct.get("__doc__", "")
@@ -192,20 +192,20 @@ class PredicateMeta(type):
             doc += "    =======\n\n"
 
             # Append the handler's doc without breaking sphinx documentation.
-            docs = [f"    Multiply dispatched method: {handler.name}"]
+            docs = ["    Multiply dispatched method: %s" % handler.name]
             if handler.doc:
                 for line in handler.doc.splitlines():
                     if not line:
                         continue
-                    docs.append(f"    {line}")
+                    docs.append("    %s" % line)
             other = []
             for sig in handler.ordering[::-1]:
                 func = handler.funcs[sig]
                 if func.__doc__:
-                    s = f"    Inputs: <{str_signature(sig)}>"
+                    s = '    Inputs: <%s>' % str_signature(sig)
                     lines = []
                     for line in func.__doc__.splitlines():
-                        lines.append(f"    {line}")
+                        lines.append("    %s" % line)
                     s += "\n".join(lines)
                     docs.append(s)
                 else:
@@ -213,7 +213,7 @@ class PredicateMeta(type):
             if other:
                 othersig = "    Other signatures:"
                 for line in other:
-                    othersig += f"\n        * {line}"
+                    othersig += "\n        * %s" % line
                 docs.append(othersig)
 
             doc += '\n\n'.join(docs)
@@ -319,7 +319,7 @@ class Predicate(Boolean, metaclass=PredicateMeta):
         Register the signature to the handler.
         """
         if cls.handler is None:
-            raise TypeError(f"{type(cls)} cannot be dispatched.")
+            raise TypeError("%s cannot be dispatched." % type(cls))
         return cls.handler.register(*types, **kwargs)
 
     @classmethod

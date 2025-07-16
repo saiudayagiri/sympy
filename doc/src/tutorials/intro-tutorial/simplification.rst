@@ -17,8 +17,7 @@ Now let's jump in and do some interesting mathematics.  One of the most useful
 features of a symbolic manipulation system is the ability to simplify
 mathematical expressions.  SymPy has dozens of functions to perform various
 kinds of simplification.  There is also one general function called
-:func:`~sympy.simplify.simplify.simplify` that attempts to apply
-all of these functions in an intelligent
+``simplify()`` that attempts to apply all of these functions in an intelligent
 way to arrive at the simplest form of an expression.  Here are some examples
 
     >>> simplify(sin(x)**2 + cos(x)**2)
@@ -29,12 +28,10 @@ way to arrive at the simplest form of an expression.  Here are some examples
     (x - 2)⋅(x - 1)
 
 Here, ``gamma(x)`` is `\Gamma(x)`, the `gamma function
-<https://en.wikipedia.org/wiki/Gamma_function>`_.  We see that
-:func:`~sympy.simplify.simplify.simplify`
+<https://en.wikipedia.org/wiki/Gamma_function>`_.  We see that ``simplify()``
 is capable of handling a large class of expressions.
 
-But :func:`~sympy.simplify.simplify.simplify` has a pitfall.  It
-just applies all the major
+But ``simplify()`` has a pitfall.  It just applies all the major
 simplification operations in SymPy, and uses heuristics to determine the
 simplest result. But "simplest" is not a well-defined term.  For example, say
 we wanted to "simplify" `x^2 + 2x + 1` into `(x + 1)^2`:
@@ -44,34 +41,28 @@ we wanted to "simplify" `x^2 + 2x + 1` into `(x + 1)^2`:
     x  + 2⋅x + 1
 
 We did not get what we want.  There is a function to perform this
-simplification, called :func:`~sympy.polys.polytools.factor`, which
-will be discussed below.
+simplification, called ``factor()``, which will be discussed below.
 
-Another pitfall to :func:`~sympy.simplify.simplify.simplify` is
-that it can be unnecessarily slow, since
+Another pitfall to ``simplify()`` is that it can be unnecessarily slow, since
 it tries many kinds of simplifications before picking the best one.  If you
 already know exactly what kind of simplification you are after, it is better
 to apply the specific simplification function(s) that apply those
 simplifications.
 
-Applying specific simplification functions instead of
-:func:`~sympy.simplify.simplify.simplify` also has
+Applying specific simplification functions instead of ``simplify()`` also has
 the advantage that specific functions have certain guarantees about the form
 of their output.  These will be discussed with each function below.  For
-example, :func:`~sympy.polys.polytools.factor`, when called on a
-polynomial with rational coefficients,
+example, ``factor()``, when called on a polynomial with rational coefficients,
 is guaranteed to factor the polynomial into irreducible factors.
-:func:`~sympy.simplify.simplify.simplify` has no guarantees.  It is
-entirely heuristical, and, as we saw
+``simplify()`` has no guarantees.  It is entirely heuristical, and, as we saw
 above, it may even miss a possible type of simplification that SymPy is
 capable of doing.
 
-:func:`~sympy.simplify.simplify.simplify` is best when used
-interactively, when you just want to whittle
+``simplify()`` is best when used interactively, when you just want to whittle
 down an expression to a simpler form.  You may then choose to apply specific
-functions once you see what :func:`~sympy.simplify.simplify.simplify`
-returns, to get a more precise result. It is also useful when you have no idea
-what form an expression will take, and you need a catchall function to simplify it.
+functions once you see what ``simplify()`` returns, to get a more precise
+result.  It is also useful when you have no idea what form an expression will
+take, and you need a catchall function to simplify it.
 
 Polynomial/Rational Function Simplification
 ===========================================
@@ -79,9 +70,9 @@ Polynomial/Rational Function Simplification
 expand
 ------
 
-:func:`~sympy.core.function.expand` is one of the most common simplification
-functions in SymPy. Although it has a lot of scopes, for now, we will consider
-its function in expanding polynomial expressions. For example:
+``expand()`` is one of the most common simplification functions in SymPy.
+Although it has a lot of scopes, for now, we will consider its function in
+expanding polynomial expressions. For example:
 
     >>> expand((x + 1)**2)
      2
@@ -90,13 +81,12 @@ its function in expanding polynomial expressions. For example:
      2
     x  - x - 6
 
-Given a polynomial, :func:`~sympy.core.function.expand` will put it into
-a canonical form of a sum of monomials.
+Given a polynomial, ``expand()`` will put it into a canonical form of a sum of
+monomials.
 
-:func:`~sympy.core.function.expand` may not sound like a simplification
-function.  After all, by its very name, it makes expressions bigger, not
-smaller.  Usually this is the case, but often an expression will become
-smaller upon calling on :func:`~sympy.core.function.expand`
+``expand()`` may not sound like a simplification function.  After all, by its
+very name, it makes expressions bigger, not smaller.  Usually this is the
+case, but often an expression will become smaller upon calling ``expand()`` on
 it due to cancellation.
 
     >>> expand((x + 1)*(x - 2) - (x - 1)*x)
@@ -105,8 +95,7 @@ it due to cancellation.
 factor
 ------
 
-:func:`~sympy.polys.polytools.factor` takes a polynomial and factors
-it into irreducible factors over
+``factor()`` takes a polynomial and factors it into irreducible factors over
 the rational numbers.  For example:
 
     >>> factor(x**3 - x**2 + x - 1)
@@ -116,11 +105,9 @@ the rational numbers.  For example:
                2
     z⋅(x + 2⋅y)
 
-For polynomials, :func:`~sympy.polys.polytools.factor` is the opposite of
-:func:`~sympy.core.function.expand`.  :func:`~sympy.polys.polytools.factor`
+For polynomials, ``factor()`` is the opposite of ``expand()``.  ``factor()``
 uses a complete multivariate factorization algorithm over the rational
-numbers, which means that each of the factors returned by
-:func:`~sympy.polys.polytools.factor` is
+numbers, which means that each of the factors returned by ``factor()`` is
 guaranteed to be irreducible.
 
 If you are interested in the factors themselves, ``factor_list`` returns a
@@ -129,8 +116,7 @@ more structured output.
     >>> factor_list(x**2*z + 4*x*y*z + 4*y**2*z)
     (1, [(z, 1), (x + 2⋅y, 2)])
 
-Note that the input to :func:`~sympy.polys.polytools.factor` and
-:func:`~sympy.core.function.expand` need not be polynomials in
+Note that the input to ``factor`` and ``expand`` need not be polynomials in
 the strict sense.  They will intelligently factor or expand any kind of
 expression (though note that the factors may not be irreducible if the input
 is no longer a polynomial over the rationals).
@@ -145,8 +131,7 @@ is no longer a polynomial over the rationals).
 collect
 -------
 
-:func:`~sympy.simplify.radsimp.collect` collects common powers of a
-term in an expression.  For example
+``collect()`` collects common powers of a term in an expression.  For example
 
     >>> expr = x*y + x - 3 + 2*x**2 - z*x**2 + x**3
     >>> expr
@@ -157,8 +142,7 @@ term in an expression.  For example
      3    2
     x  + x ⋅(2 - z) + x⋅(y + 1) - 3
 
-:func:`~sympy.simplify.radsimp.collect` is particularly useful in
-conjunction with the :func:`~sympy.core.expr.Expr.coeff`
+``collect()`` is particularly useful in conjunction with the ``.coeff()``
 method.  ``expr.coeff(x, n)`` gives the coefficient of ``x**n`` in ``expr``:
 
     >>> collected_expr.coeff(x, 2)
@@ -170,8 +154,7 @@ method.  ``expr.coeff(x, n)`` gives the coefficient of ``x**n`` in ``expr``:
 cancel
 ------
 
-:func:`~sympy.polys.polytools.cancel` will take any rational function
-and put it into the standard
+``cancel()`` will take any rational function and put it into the standard
 canonical form, `\frac{p}{q}`, where `p` and `q` are expanded polynomials with
 no common factors, and the leading coefficients of `p` and `q` do not have
 denominators (i.e., are integers).
@@ -208,8 +191,7 @@ denominators (i.e., are integers).
     ───────────────
          x - 1
 
-Note that since :func:`~sympy.polys.polytools.factor` will completely
-factorize both the numerator and
+Note that since ``factor()`` will completely factorize both the numerator and
 the denominator of an expression, it can also be used to do the same thing:
 
     >>> factor(expr)
@@ -219,14 +201,12 @@ the denominator of an expression, it can also be used to do the same thing:
      x - 1
 
 However, if you are only interested in making sure that the expression is in
-canceled form, :func:`~sympy.polys.polytools.cancel` is more
-efficient than :func:`~sympy.polys.polytools.factor`.
+canceled form, ``cancel()`` is more efficient than ``factor()``.
 
 apart
 -----
 
-:func:`~sympy.polys.partfrac.apart` performs a `partial fraction
-decomposition
+``apart()`` performs a `partial fraction decomposition
 <https://en.wikipedia.org/wiki/Partial_fraction_decomposition>`_ on a rational
 function.
 
@@ -250,8 +230,7 @@ Trigonometric Simplification
 
    SymPy follows Python's naming conventions for inverse trigonometric
    functions, which is to append an ``a`` to the front of the function's
-   name.  For example, the inverse cosine, or arc cosine, is called
-   :func:`~sympy.functions.elementary.trigonometric.acos`.
+   name.  For example, the inverse cosine, or arc cosine, is called ``acos()``.
 
    >>> acos(x)
    acos(x)
@@ -268,8 +247,7 @@ Trigonometric Simplification
 trigsimp
 --------
 
-To simplify expressions using trigonometric identities, use
-:func:`~sympy.simplify.trigsimp.trigsimp`.
+To simplify expressions using trigonometric identities, use ``trigsimp()``.
 
     >>> trigsimp(sin(x)**2 + cos(x)**2)
     1
@@ -281,24 +259,21 @@ To simplify expressions using trigonometric identities, use
        2
     sin (x)
 
-:func:`~sympy.simplify.trigsimp.trigsimp` also works with
-hyperbolic trig functions.
+``trigsimp()`` also works with hyperbolic trig functions.
 
     >>> trigsimp(cosh(x)**2 + sinh(x)**2)
     cosh(2⋅x)
     >>> trigsimp(sinh(x)/tanh(x))
     cosh(x)
 
-Much like :func:`~sympy.simplify.simplify.simplify`,
-:func:`~sympy.simplify.trigsimp.trigsimp` applies various
-trigonometric identities to
+Much like ``simplify()``, ``trigsimp()`` applies various trigonometric identities to
 the input expression, and then uses a heuristic to return the "best" one.
 
 expand_trig
 -----------
 
 To expand trigonometric functions, that is, apply the sum or double angle
-identities, use :func:`~sympy.core.function.expand_trig`.
+identities, use ``expand_trig()``.
 
     >>> expand_trig(sin(x + y))
     sin(x)⋅cos(y) + sin(y)⋅cos(x)
@@ -308,10 +283,9 @@ identities, use :func:`~sympy.core.function.expand_trig`.
            2
     1 - tan (x)
 
-Because :func:`~sympy.core.function.expand_trig` tends to make trigonometric
-expressions larger, and :func:`~sympy.simplify.trigsimp.trigsimp` tends to
-make them smaller, these identities can be applied in
-reverse using :func:`~sympy.simplify.trigsimp.trigsimp`
+Because ``expand_trig()`` tends to make trigonometric expressions larger, and
+``trigsimp()`` tends to make them smaller, these identities can be applied in
+reverse using ``trigsimp()``
 
     >>> trigsimp(sin(x)*cos(y) + sin(y)*cos(x))
     sin(x + y)
@@ -359,6 +333,7 @@ To summarize
 |3. `(x^a)^b = x^{ab}`  |`b \in \mathbb{Z}`                  |`{\left((-1)^2\right)}^{1/2} \neq (-1)^{2\cdot1/2}` |`\sqrt{x^2}\neq x` and `\sqrt{\frac{1}{x}}\neq\frac{1}{\sqrt{x}}` in general |
 +-----------------------+------------------------------------+----------------------------------------------------+-----------------------------------------------------------------------------+
 
+
 This is important to remember, because by default, SymPy will not perform
 simplifications if they are not true in general.
 
@@ -372,8 +347,7 @@ but for now, all we need to know are the following.
   expression with a given Symbol unless it holds for all complex numbers.
 
 - Symbols can be given different assumptions by passing the assumption to
-  :func:`~sympy.core.symbol.symbols`.  For the rest of this section,
-  we will be assuming that ``x``
+  ``symbols()``.  For the rest of this section, we will be assuming that ``x``
   and ``y`` are positive, and that ``a`` and ``b`` are real.  We will leave
   ``z``, ``t``, and ``c`` as arbitrary complex Symbols to demonstrate what
   happens in that case.
@@ -395,8 +369,7 @@ but for now, all we need to know are the following.
 powsimp
 -------
 
-:func:`~sympy.simplify.powsimp.powsimp` applies identities 1 and 2
-from above, from left to right.
+``powsimp()`` applies identities 1 and 2 from above, from left to right.
 
 
    >>> powsimp(x**a*x**b)
@@ -406,8 +379,7 @@ from above, from left to right.
         a
    (x⋅y)
 
-Notice that ::func:`~sympy.simplify.powsimp.powsimp` refuses to do
-the simplification if it is not valid.
+Notice that ``powsimp()`` refuses to do the simplification if it is not valid.
 
     >>> powsimp(t**c*z**c)
      c  c
@@ -431,9 +403,7 @@ rational numbers, and identity 2 holds, it will be applied automatically.
     √x⋅√y
 
 This means that it will be impossible to undo this identity with
-:func:`~sympy.simplify.powsimp.powsimp`, because even if
-:func:`~sympy.simplify.powsimp.powsimp` were to put the bases
-together,
+``powsimp()``, because even if ``powsimp()`` were to put the bases together,
 they would be automatically split apart again.
 
    >>> powsimp(z**2*t**2)
@@ -445,8 +415,7 @@ they would be automatically split apart again.
 expand_power_exp / expand_power_base
 ------------------------------------
 
-:func:`~sympy.core.function.expand_power_exp` and
-:func:`~sympy.core.function.expand_power_base` apply identities 1 and 2
+``expand_power_exp()`` and ``expand_power_base()`` apply identities 1 and 2
 from right to left, respectively.
 
     >>> expand_power_exp(x**(a + b))
@@ -457,15 +426,13 @@ from right to left, respectively.
      a  a
     x ⋅y
 
-As with :func:`~sympy.simplify.powsimp.powsimp`, identity 2 is not
-applied if it is not valid.
+As with ``powsimp()``, identity 2 is not applied if it is not valid.
 
     >>> expand_power_base((z*t)**c)
          c
     (t⋅z)
 
-And as with :func:`~sympy.simplify.powsimp.powsimp`, you can force
-the expansion to happen without
+And as with ``powsimp()``, you can force the expansion to happen without
 fiddling with assumptions by using ``force=True``.
 
    >>> expand_power_base((z*t)**c, force=True)
@@ -473,7 +440,7 @@ fiddling with assumptions by using ``force=True``.
     t ⋅z
 
 As with identity 2, identity 1 is applied automatically if the power is a
-number, and hence cannot be undone with :func:`~sympy.core.function.expand_power_exp`.
+number, and hence cannot be undone with ``expand_power_exp()``.
 
    >>> x**2*x**3
      5
@@ -485,8 +452,7 @@ number, and hence cannot be undone with :func:`~sympy.core.function.expand_power
 powdenest
 ---------
 
-:func:`~sympy.simplify.powsimp.powdenest` applies identity 3, from
-left to right.
+``powdenest()`` applies identity 3, from left to right.
 
     >>> powdenest((x**a)**b)
      a⋅b
@@ -548,9 +514,8 @@ example, `\log{\left(e^{x + 2\pi i}\right)} = \log{\left(e^x\right)} = x
 expand_log
 ----------
 
-To apply identities 1 and 2 from left to right, use
-:func:`~sympy.core.function.expand_log`.  As always, the identities
-will not be applied unless they are valid.
+To apply identities 1 and 2 from left to right, use ``expand_log()``.  As
+always, the identities will not be applied unless they are valid.
 
     >>> expand_log(log(x*y))
     log(x) + log(y)
@@ -563,9 +528,7 @@ will not be applied unless they are valid.
     >>> expand_log(log(z*t))
     log(t⋅z)
 
-As with :func:`~sympy.simplify.powsimp.powsimp` and
-:func:`~sympy.simplify.powsimp.powdenest`,
-:func:`~sympy.core.function.expand_log` has a ``force``
+As with ``powsimp()`` and ``powdenest()``, ``expand_log()`` has a ``force``
 option that can be used to ignore assumptions.
 
     >>> expand_log(log(z**2))
@@ -577,8 +540,7 @@ option that can be used to ignore assumptions.
 logcombine
 ----------
 
-To apply identities 1 and 2 from right to left, use
-:func:`~sympy.simplify.simplify.logcombine`.
+To apply identities 1 and 2 from right to left, use ``logcombine()``.
 
     >>> logcombine(log(x) + log(y))
     log(x⋅y)
@@ -588,8 +550,8 @@ To apply identities 1 and 2 from right to left, use
     >>> logcombine(n*log(z))
     n⋅log(z)
 
-:func:`~sympy.simplify.simplify.logcombine` also has a ``force``
-option that can be used to ignore assumptions.
+``logcombine()`` also has a ``force`` option that can be used to ignore
+assumptions.
 
     >>> logcombine(n*log(z), force=True)
        ⎛ n⎞
@@ -615,8 +577,7 @@ assumptions we put on them in the previous section.  We will also define ``k``,
     >>> k, m, n = symbols('k m n')
 
 The `factorial <https://en.wikipedia.org/wiki/Factorial>`_ function is
-:class:`~sympy.functions.combinatorial.factorials.factorial`.
-``factorial(n)`` represents `n!= 1\cdot2\cdots(n - 1)\cdot
+``factorial``.  ``factorial(n)`` represents `n!= 1\cdot2\cdots(n - 1)\cdot
 n`. `n!` represents the number of permutations of `n` distinct items.
 
     >>> factorial(n)
@@ -624,9 +585,8 @@ n`. `n!` represents the number of permutations of `n` distinct items.
 
 The `binomial coefficient
 <https://en.wikipedia.org/wiki/Binomial_coefficient>`_ function is
-:class:`~sympy.functions.combinatorial.factorials.binomial`.
-``binomial(n, k)`` represents `\binom{n}{k}`, the number of ways to
-choose `k` items from a set of `n` distinct items.  It is also often
+``binomial``.  ``binomial(n, k)`` represents `\binom{n}{k}`, the number of
+ways to choose `k` items from a set of `n` distinct items.  It is also often
 written as `nCk`, and is pronounced "`n` choose `k`".
 
     >>> binomial(n, k)
@@ -635,10 +595,8 @@ written as `nCk`, and is pronounced "`n` choose `k`".
     ⎝k⎠
 
 The factorial function is closely related to the `gamma function
-<https://en.wikipedia.org/wiki/Gamma_function>`_,
-:class:`~sympy.functions.special.gamma_functions.gamma`  ``gamma(z)``
-represents `\Gamma(z) = \int_0^\infty t^{z - 1}e^{-t}\,dt`, which for positive
-integer
+<https://en.wikipedia.org/wiki/Gamma_function>`_, ``gamma``.  ``gamma(z)``
+represents `\Gamma(z) = \int_0^\infty t^{z - 1}e^{-t}\,dt`, which for positive integer
 `z` is the same as `(z - 1)!`.
 
     >>> gamma(z)
@@ -646,8 +604,7 @@ integer
 
 The `generalized hypergeometric function
 <https://en.wikipedia.org/wiki/Generalized_hypergeometric_function>`_ is
-:class:`~sympy.functions.special.hyper.hyper`.
-``hyper([a_1, ..., a_p], [b_1, ..., b_q], z)`` represents
+``hyper``.  ``hyper([a_1, ..., a_p], [b_1, ..., b_q], z)`` represents
 `{}_pF_q\left(\begin{matrix} a_1, \cdots, a_p \\ b_1, \cdots, b_q \end{matrix}
 \middle| z \right)`.  The most common case is `{}_2F_1`, which is often
 referred to as the `ordinary hypergeometric function
@@ -682,7 +639,7 @@ expand_func
 -----------
 
 To expand special functions in terms of some identities, use
-:func:`~sympy.core.function.expand_func`.  For example
+``expand_func()``.  For example
 
     >>> expand_func(gamma(x + 3))
     x⋅(x + 1)⋅(x + 2)⋅Γ(x)
@@ -691,16 +648,15 @@ hyperexpand
 -----------
 
 To rewrite ``hyper`` in terms of more standard functions, use
-:func:`~sympy.simplify.hyperexpand.hyperexpand`.
+``hyperexpand()``.
 
     >>> hyperexpand(hyper([1, 1], [2], z))
     -log(1 - z)
     ────────────
          z
 
-:func:`~sympy.simplify.hyperexpand.hyperexpand` also works on
-the more general Meijer G-function (see
-:class:`~sympy.functions.special.hyper.meijerg` for more
+``hyperexpand()`` also works on the more general Meijer G-function (see
+:py:meth:`its documentation <sympy.functions.special.hyper.meijerg>` for more
 information).
 
     >>> expr = meijerg([[1],[1]], [[1],[]], -z)
@@ -717,8 +673,7 @@ information).
 combsimp
 --------
 
-To simplify combinatorial expressions, use
-:func:`~sympy.simplify.combsimp.combsimp`.
+To simplify combinatorial expressions, use ``combsimp()``.
 
     >>> n, k = symbols('n k', integer = True)
     >>> combsimp(factorial(n)/factorial(n - 3))
@@ -732,7 +687,7 @@ gammasimp
 ---------
 
 To simplify expressions with gamma functions or combinatorial functions with
-non-integer argument, use :func:`~sympy.core.expr.Expr.gammasimp`.
+non-integer argument, use ``gammasimp()``.
 
     >>> gammasimp(gamma(x)*gamma(1 - x))
        π
@@ -786,8 +741,7 @@ SymPy object, even if we only pass in Python ints.
 
 Every finite continued fraction is a rational number, but we are interested in
 symbolics here, so let's create a symbolic continued fraction.  The
-:func:`~sympy.core.symbol.symbols` function that we have been using
-has a shortcut to create
+``symbols()`` function that we have been using has a shortcut to create
 numbered symbols.  ``symbols('a0:5')`` will create the symbols ``a0``, ``a1``,
 ..., ``a4``.
 
@@ -808,8 +762,7 @@ numbered symbols.  ``symbols('a0:5')`` will create the symbols ``a0``, ``a1``,
                         a₄
 
 This form is useful for understanding continued fractions, but lets put it
-into standard rational function form using
-:func:`~sympy.polys.polytools.cancel`.
+into standard rational function form using ``cancel()``.
 
     >>> frac = cancel(frac)
     >>> frac
@@ -819,8 +772,7 @@ into standard rational function form using
 
 Now suppose we were given ``frac`` in the above canceled form. In fact, we
 might be given the fraction in any form, but we can always put it into the
-above canonical form with :func:`~sympy.polys.polytools.cancel`.
-Suppose that we knew that it could be
+above canonical form with ``cancel()``.  Suppose that we knew that it could be
 rewritten as a continued fraction.  How could we do this with SymPy?  A
 continued fraction is recursively `c + \frac{1}{f}`, where `c` is an integer
 and `f` is a (smaller) continued fraction.  If we could write the expression
@@ -830,9 +782,8 @@ could then get a continued fraction with our ``list_to_frac()`` function.
 The key observation here is that we can convert an expression to the form `c +
 \frac{1}{f}` by doing a partial fraction decomposition with respect to
 `c`. This is because `f` does not contain `c`.  This means we need to use the
-:func:`~sympy.polys.partfrac.apart` function.  We use
-:func:`~sympy.polys.partfrac.apart` to pull the term out, then
-subtract it from the expression, and take the reciprocal to get the `f` part.
+``apart()`` function.  We use ``apart()`` to pull the term out, then subtract
+it from the expression, and take the reciprocal to get the `f` part.
 
     >>> l = []
     >>> frac = apart(frac, a0)
@@ -904,8 +855,7 @@ peeking (you can check your answer at the end by calling
 ``cancel(list_to_frac(l))`` on the list that you generate at the end, and
 comparing it to ``orig_frac``.
 
-See if you can think of a way to figure out what symbol to pass to
-:func:`~sympy.polys.partfrac.apart`
+See if you can think of a way to figure out what symbol to pass to ``apart()``
 at each stage (hint: think of what happens to `a_0` in the formula `a_0 +
 \frac{1}{a_1 + \cdots}` when it is canceled).
 

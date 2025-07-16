@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 from pathlib import Path
 from subprocess import check_output
 import unicodedata
@@ -30,7 +31,8 @@ Thanks to everyone who contributed to this release!
     authors_text += '\n'.join(authors_lines)
 
     # Output to file and to screen
-    Path(outdir / 'authors.txt').write_text(authors_text)
+    with open(outdir / 'authors.txt', 'w') as authorsfile:
+        authorsfile.write(authors_text)
 
     print()
     print(blue("Here are the authors to put at the bottom of the release notes."))
@@ -40,10 +42,6 @@ Thanks to everyone who contributed to this release!
 
 def blue(text):
     return "\033[34m%s\033[0m" % text
-
-
-def red(text):
-    return "\033[31m%s\033[0m" % text
 
 
 def get_authors(version, prevversion):
@@ -121,7 +119,7 @@ def get_previous_version_tag(version):
             # never happens, so just error
             cmdline = f'git rev-list --parents -n 1 {curtag}'
             print(cmdline)
-            check_output(cmdline.split()).decode('utf-8').strip().split()
+            parents = check_output(cmdline.split()).decode('utf-8').strip().split()
             # rev-list prints the current commit and then all its parents
             # If the tagged commit *is* a merge commit, just comment this
             # out, and manually make sure `get_previous_version_tag` is correct

@@ -2,7 +2,7 @@ from math import prod
 
 from sympy.core import Add, S, Dummy, expand_func
 from sympy.core.expr import Expr
-from sympy.core.function import DefinedFunction, ArgumentIndexError, PoleError
+from sympy.core.function import Function, ArgumentIndexError, PoleError
 from sympy.core.logic import fuzzy_and, fuzzy_not
 from sympy.core.numbers import Rational, pi, oo, I
 from sympy.core.power import Pow
@@ -31,7 +31,7 @@ def intlike(n):
 ############################ COMPLETE GAMMA FUNCTION ##########################
 ###############################################################################
 
-class gamma(DefinedFunction):
+class gamma(Function):
     r"""
     The gamma function
 
@@ -219,7 +219,7 @@ class gamma(DefinedFunction):
 ################## LOWER and UPPER INCOMPLETE GAMMA FUNCTIONS #################
 ###############################################################################
 
-class lowergamma(DefinedFunction):
+class lowergamma(Function):
     r"""
     The lower incomplete gamma function.
 
@@ -395,7 +395,7 @@ class lowergamma(DefinedFunction):
             return True
 
 
-class uppergamma(DefinedFunction):
+class uppergamma(Function):
     r"""
     The upper incomplete gamma function.
 
@@ -561,7 +561,7 @@ class uppergamma(DefinedFunction):
 ###################### POLYGAMMA and LOGGAMMA FUNCTIONS #######################
 ###############################################################################
 
-class polygamma(DefinedFunction):
+class polygamma(Function):
     r"""
     The function ``polygamma(n, z)`` returns ``log(gamma(z)).diff(n + 1)``.
 
@@ -862,7 +862,7 @@ class polygamma(DefinedFunction):
         return Expr._from_mpmath(res, prec)
 
 
-class loggamma(DefinedFunction):
+class loggamma(Function):
     r"""
     The ``loggamma`` function implements the logarithm of the
     gamma function (i.e., $\log\Gamma(x)$).
@@ -1057,7 +1057,7 @@ class loggamma(DefinedFunction):
             raise ArgumentIndexError(self, argindex)
 
 
-class digamma(DefinedFunction):
+class digamma(Function):
     r"""
     The ``digamma`` function is the first derivative of the ``loggamma``
     function
@@ -1151,7 +1151,7 @@ class digamma(DefinedFunction):
 
 
 
-class trigamma(DefinedFunction):
+class trigamma(Function):
     r"""
     The ``trigamma`` function is the second derivative of the ``loggamma``
     function
@@ -1252,7 +1252,7 @@ class trigamma(DefinedFunction):
 ###############################################################################
 
 
-class multigamma(DefinedFunction):
+class multigamma(Function):
     r"""
     The multivariate gamma function is a generalization of the gamma function
 

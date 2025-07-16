@@ -6,7 +6,6 @@
 
 import os
 import re
-from pathlib import Path
 
 from sympy.assumptions.ask import Q
 from sympy.core.basic import Basic
@@ -19,7 +18,7 @@ from sympy.functions.elementary.exponential import (exp, log)
 from sympy.functions.elementary.miscellaneous import sqrt
 from sympy.functions.elementary.trigonometric import sin
 
-from sympy.testing.pytest import SKIP, warns_deprecated_sympy
+from sympy.testing.pytest import SKIP
 
 a, b, c, x, y, z, s = symbols('a,b,c,x,y,z,s')
 
@@ -48,7 +47,8 @@ def test_all_classes_are_tested():
             if not file.endswith(".py"):
                 continue
 
-            text = Path(os.path.join(root, file)).read_text(encoding='utf-8')
+            with open(os.path.join(root, file), encoding='utf-8') as f:
+                text = f.read()
 
             submodule = module + '.' + file[:-3]
 
@@ -492,26 +492,6 @@ def test_sympy__codegen__numpy_nodes__logaddexp2():
     assert _test_args(logaddexp2(x, y))
 
 
-def test_sympy__codegen__numpy_nodes__amin():
-    from sympy.codegen.numpy_nodes import amin
-    assert _test_args(amin(x))
-
-
-def test_sympy__codegen__numpy_nodes__amax():
-    from sympy.codegen.numpy_nodes import amax
-    assert _test_args(amax(x))
-
-
-def test_sympy__codegen__numpy_nodes__minimum():
-    from sympy.codegen.numpy_nodes import minimum
-    assert _test_args(minimum(x, y, z))
-
-
-def test_sympy__codegen__numpy_nodes__maximum():
-    from sympy.codegen.numpy_nodes import maximum
-    assert _test_args(maximum(x, y, z))
-
-
 def test_sympy__codegen__pynodes__List():
     from sympy.codegen.pynodes import List
     assert _test_args(List(1, 2, 3))
@@ -673,11 +653,6 @@ def test_sympy__core__function__Application():
 def test_sympy__core__function__AppliedUndef():
     from sympy.core.function import AppliedUndef
     assert _test_args(AppliedUndef(1, 2, 3))
-
-
-def test_sympy__core__function__DefinedFunction():
-    from sympy.core.function import DefinedFunction
-    assert _test_args(DefinedFunction(1, 2, 3))
 
 
 def test_sympy__core__function__Derivative():
@@ -3774,9 +3749,8 @@ def test_sympy__physics__quantum__operator__HermitianOperator():
 
 
 def test_sympy__physics__quantum__operator__IdentityOperator():
-    with warns_deprecated_sympy():
-        from sympy.physics.quantum.operator import IdentityOperator
-        assert _test_args(IdentityOperator(5))
+    from sympy.physics.quantum.operator import IdentityOperator
+    assert _test_args(IdentityOperator(5))
 
 
 def test_sympy__physics__quantum__operator__Operator():

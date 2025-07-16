@@ -13,15 +13,7 @@ Beam
    :titlesonly:
 
    beam.rst
-
-Column
-======
-
-.. toctree::
-   :titlesonly:
-
-   column.rst
-
+   beam_problems.rst
 
 Truss
 =====

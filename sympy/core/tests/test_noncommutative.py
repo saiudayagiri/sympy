@@ -14,10 +14,10 @@ from sympy.simplify.simplify import (posify, simplify)
 from sympy.simplify.trigsimp import trigsimp
 from sympy.abc import x, y, z
 from sympy.testing.pytest import XFAIL
-from sympy.physics.quantum import HermitianOperator
 
 A, B, C = symbols("A B C", commutative=False)
-X = HermitianOperator("X")
+X = symbols("X", commutative=False, hermitian=True)
+Y = symbols("Y", commutative=False, antihermitian=True)
 
 
 def test_adjoint():
@@ -30,9 +30,13 @@ def test_adjoint():
 
     assert adjoint(X) == X
     assert adjoint(-I*X) == I*X
+    assert adjoint(Y) == -Y
+    assert adjoint(-I*Y) == -I*Y
 
     assert adjoint(X) == conjugate(transpose(X))
+    assert adjoint(Y) == conjugate(transpose(Y))
     assert adjoint(X) == transpose(conjugate(X))
+    assert adjoint(Y) == transpose(conjugate(Y))
 
 
 def test_cancel():
@@ -128,6 +132,8 @@ def test_transpose():
 
     assert transpose(X) == conjugate(X)
     assert transpose(-I*X) == -I*conjugate(X)
+    assert transpose(Y) == -conjugate(Y)
+    assert transpose(-I*Y) == I*conjugate(Y)
 
 
 def test_trigsimp():

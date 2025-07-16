@@ -926,20 +926,15 @@ def dmp_shift(f, a, u, K):
 
     a0, a1 = a[0], a[1:]
 
-    if any(a1):
-        f = [ dmp_shift(c, a1, u-1, K) for c in f ]
-    else:
-        f = list(f)
+    f = [ dmp_shift(c, a1, u-1, K) for c in f ]
+    n = len(f) - 1
 
-    if a0:
-        n = len(f) - 1
+    for i in range(n, 0, -1):
+        for j in range(0, i):
+            afj = dmp_mul_ground(f[j], a0, u-1, K)
+            f[j + 1] = dmp_add(f[j + 1], afj, u-1, K)
 
-        for i in range(n, 0, -1):
-            for j in range(0, i):
-                afj = dmp_mul_ground(f[j], a0, u-1, K)
-                f[j + 1] = dmp_add(f[j + 1], afj, u-1, K)
-
-    return dmp_strip(f, u)
+    return f
 
 
 def dup_transform(f, p, q, K):

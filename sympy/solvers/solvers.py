@@ -20,7 +20,7 @@ from sympy.core.function import (expand_mul, expand_log, Derivative,
                                  AppliedUndef, UndefinedFunction, nfloat,
                                  Function, expand_power_exp, _mexpand, expand,
                                  expand_func)
-from sympy.core.logic import fuzzy_not, fuzzy_and
+from sympy.core.logic import fuzzy_not
 from sympy.core.numbers import Float, Rational, _illegal
 from sympy.core.intfunc import integer_log, ilcm
 from sympy.core.power import Pow
@@ -247,7 +247,15 @@ def checksol(f, symbol, sol=None, **flags):
     if iterable(f):
         if not f:
             raise ValueError('no functions to check')
-        return fuzzy_and(checksol(fi, sol, **flags) for fi in f)
+        rv = True
+        for fi in f:
+            check = checksol(fi, sol, **flags)
+            if check:
+                continue
+            if check is False:
+                return False
+            rv = None  # don't return, wait to see if there's a False
+        return rv
 
     f = _sympify(f)
 
@@ -797,7 +805,7 @@ def solve(f, *symbols, **flags):
             Allows ``solve`` to return a solution for a pattern in terms of
             other functions that contain that pattern; this is only
             needed if the pattern is inside of some invertible function
-            like cos, exp, etc.
+            like cos, exp, ect.
         particular=True (default is False)
             Instructs ``solve`` to try to find a particular solution to
             a linear system with as many zeros as possible; this is very
@@ -964,12 +972,6 @@ def solve(f, *symbols, **flags):
 
         # if we have a Matrix, we need to iterate over its elements again
         if f[i].is_Matrix:
-            try:
-                f[i] = f[i].as_explicit()
-            except ValueError:
-                raise ValueError(
-                    "solve cannot handle matrices with symbolic shape."
-                )
             bare_f = False
             f.extend(list(f[i]))
             f[i] = S.Zero
@@ -1239,13 +1241,18 @@ def solve(f, *symbols, **flags):
         got_None = []  # solutions for which one or more symbols gave None
         no_False = []  # solutions for which no symbols gave False
         for sol in solution:
-            v = fuzzy_and(check_assumptions(val, **symb.assumptions0)
-                          for symb, val in sol.items())
-            if v is False:
-                continue
-            no_False.append(sol)
-            if v is None:
-                got_None.append(sol)
+            a_None = False
+            for symb, val in sol.items():
+                test = check_assumptions(val, **symb.assumptions0)
+                if test:
+                    continue
+                if test is False:
+                    break
+                a_None = True
+            else:
+                no_False.append(sol)
+                if a_None:
+                    got_None.append(sol)
 
         solution = no_False
         if warn and got_None:
@@ -1797,7 +1804,7 @@ def _solve_system(exprs, symbols, **flags):
                 if not isinstance(subsol, list):
                     subsol = [subsol]
                 subsols.append(subsol)
-            # Full solution is cartesian product of subsystems
+            # Full solution is cartesion product of subsystems
             sols = []
             for soldicts in product(*subsols):
                 sols.append(dict(item for sd in soldicts
