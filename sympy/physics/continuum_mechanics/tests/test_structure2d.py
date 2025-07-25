@@ -1,7 +1,10 @@
 from sympy.physics.continuum_mechanics.structure2d import Structure2d
+from sympy.physics.continuum_mechanics.beam import Beam
+from sympy.physics.continuum_mechanics.column import Column
 from sympy.core.symbol import Symbol, symbols
 from sympy.functions import SingularityFunction
 from sympy.simplify.simplify import simplify
+from sympy import sqrt
 # from sympy import pi, cos, sin, rad, sympify
 import pytest
 import math
@@ -63,8 +66,8 @@ def test_structure2d_symbolic(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -76,7 +79,7 @@ def test_structure2d_symbolic(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2, 0, value, global_angle=angle, order=-1)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads
     for load_symbol, expected_value in reaction_loads.items():
@@ -208,8 +211,8 @@ def test_numerical_pointload(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -221,7 +224,7 @@ def test_numerical_pointload(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2, 0, value, global_angle=angle, order=-1)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads SSSADASDAS
     for load_symbol, expected_value in reaction_loads.items():
@@ -357,8 +360,8 @@ def test_numerical_distload(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -370,7 +373,7 @@ def test_numerical_distload(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2,0,value,global_angle=angle,order=0,end_x=3,end_y=0)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads SSSADASDAS
     for load_symbol, expected_value in reaction_loads.items():
@@ -435,11 +438,11 @@ def test_structure2d_symbolic_onebend(test_beam_fixture_one_bend, test_data):
 
 
     s.apply_load(start_x=1.5,start_y=2,value=value,global_angle=0,order=-1)
-    Rh1, Rv1, T1 = s.apply_support(x=7, y=-1, type='fixed')
+    s.apply_support(x=7, y=-1, type='fixed')
 
     s.apply_load(5,1.5,value/2,global_angle=s.members[1].angle_deg + 270,order=0,end_x=7,end_y=-1)
     s.apply_load(0,0,value*0.8,global_angle=270,order=0,end_x=3,end_y=4)
-    s.solve_for_reaction_loads(Rh1,Rv1,T1)
+    s.solve_for_reaction_loads()
     # s.draw()
     # Check reaction loads
     for load_symbol, expected_value in reaction_loads.items():
@@ -454,3 +457,81 @@ def test_structure2d_symbolic_onebend(test_beam_fixture_one_bend, test_data):
         print(math.isclose(float(s.bending_moment(loc)),float(expected_bm),rel_tol=1e-2,abs_tol=1e-2))
 
         assert math.isclose(float(s.bending_moment(loc)),float(expected_bm),rel_tol=1e-2,abs_tol=1e-2) == True
+
+
+def test_structure2d_beam_column_initialization():
+    s = Structure2d()
+
+    assert isinstance(s.beam, Beam)
+    assert isinstance(s.column, Column)
+
+    assert s.beam.length == 1
+    assert s.beam.elastic_modulus == 1
+    assert s.beam.second_moment == 1
+
+    assert s.column.length == 1
+    assert s.column.elastic_modulus == 1
+    assert s.column.area == 1
+
+
+def test_structure2d_beam_column_supports():
+    E, I, A=symbols('E I A')
+    s=Structure2d()
+    s.add_member(0,0,10,0,E,I,A)
+    s.apply_support(0,0,"fixed")
+    s.apply_support(10,0,"pin")
+    s.apply_support(5,0,"roller")
+
+    assert s.beam.bc_deflection==[(0, 0), (10, 0), (5, 0)]
+    assert s.column._bc_deflection==[0, 10]
+
+
+def test_structure2d_beam_column_loads():
+    E, I, A=symbols('E I A')
+    s=Structure2d()
+    s.add_member(0,0,10,0,E,I,A)
+    s.apply_load(5,0,50,0,-1)
+    s.apply_load(5,0,50,90,-1)
+
+    assert s.beam._applied_loads== [(0, 5, -1, None), (0, 5, -1, None), (-50, 5, -1, None), (0, 5, -1, None)]
+    assert s.column._applied_loads== [(0, 5, -1, None), (50, 5, -1, None), (0, 5, -1, None), (0, 5, -1, None)]
+
+    E, I, A=symbols('E I A')
+    p=Structure2d()
+    p.add_member(0,0,10,0,E,I,A)
+    p.apply_load(5,0,100,0,0,10,0)
+    p.apply_load(5,0,100,90,0,10,0)
+
+    assert p.beam._applied_loads== [(0, 5, 0, None), (0, 10, 0, None), (0, 5, 0, None), (0, 10, 0, None), (-100, 5, 0, None), (100, 10, 0, None), (0, 5, 0, None), (0, 10, 0, None)]
+    assert p.column._applied_loads==[(0, 5, 0, None), (0, 10, 0, None), (100, 5, 0, None), (-100, 10, 0, None), (0, 5, 0, None), (0, 10, 0, None), (0, 5, 0, None), (0, 10, 0, None)]
+
+    E, I, A = symbols('E I A')
+
+    d = Structure2d()
+    d.add_member(0, 0, 10, 10, E, I, A)
+    d.apply_load(5, 5, 50, 270, -1)
+    d.apply_load(5, 5, 50, 0, -1)
+    assert d.beam._applied_loads==  [(25*sqrt(2), 5*sqrt(2), -1, None), (0, 5*sqrt(2), -1, None), (0, 5*sqrt(2), -1, None), (25*sqrt(2), 5*sqrt(2), -1, None)]
+    assert d.column._applied_loads==[(25*sqrt(2), 5*sqrt(2), -1, None), (0, 5*sqrt(2), -1, None), (0, 5*sqrt(2), -1, None), (25*sqrt(2), 5*sqrt(2), -1, None)]
+
+
+def test_structure2d():
+    E, I, A=symbols('E I A')
+    s=Structure2d()
+    s.add_member(0,0,4,0,E,I,A)
+    s.add_member(4,0,8,3,E,I,A)
+    s.add_member(8,3,11,-1,E,I,A)
+    s.apply_load(0,0,15,0,-1)
+    s.apply_load(2,0,16,270,-1)
+    s.apply_load(0,0,6,270,0,4,0)
+    s.apply_load(4,0,6,270,0,6,1.5)
+    s.apply_support(11,-1,"fixed")
+    result=s.solve_for_reaction_loads()
+    # assert s.column._reaction_loads=={}
+    computed = sorted([float(v) for v in result.values()])
+    expected = sorted([-55.0, -15.0, -435.0])
+    assert s.beam.bc_deflection==[(14,0)]
+    assert s.column._bc_deflection==[14]
+    assert s.beam.length==14
+    assert s.column.length==14
+    assert computed == expected
