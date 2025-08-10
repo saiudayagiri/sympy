@@ -147,6 +147,7 @@ class Structure2d:
         The positive direction for the x-axis is to the right, and the positive direction for the y-axis is downwards.
 
         Limitations:
+
             - Only bending moments and shear forces are considered in the analysis.
             - Only non-branching or non-intersecting structures are supported. (All members must either be connected to ONE other member at each end or to nothing)
             - All E, A, I values must be the same for all members.
@@ -244,7 +245,7 @@ class Structure2d:
         >>> Rv1 = s.apply_support(x=15, y=2, type="roller")
         >>> Rv2, Rh2 = s.apply_support(x=0, y=0, type="pin")
         >>> s.solve_for_reaction_loads(Rv1, Rv2, Rh2)
-        {R_h__0,__0: -38.4615384615385, R_v__0,__0: -133.891025641026, R_v__15,__2: -163.416666666667}
+        {R_h__0,__0: -38.4615384615385, R_v__0,__0: -133.891025641026, R_v__15,__2: -163.41666666666
         >>> s.draw(show_load_values=True, forced_load_size=2) #doctest: +SKIP
 
     """
@@ -368,6 +369,7 @@ class Structure2d:
         # Check if the point corresponds to a node
         for node in self.nodes:
             if simplify(node.x - x) == 0 and simplify(node.y - y) == 0:
+
                 return f"n_{node.node_id}", 0, None
 
         # Check if the point corresponds to a member
@@ -597,6 +599,7 @@ class Structure2d:
 
         self.load_qz = self.beam._load
 
+
     ###################################################################################################################
 
     def _unwrap_structure(self):
@@ -734,6 +737,7 @@ class Structure2d:
         >>> s = Structure2d()
         >>> s.add_member(0, 0, 4, 0, E, I, A)
         >>> s.apply_load(2, 0, F, global_angle=225, order=0, end_x=3, end_y=0)
+
         >>> Rv1, Rh1 = s.apply_support(x=0, y=0, type="pin")
         >>> Rv2 = s.apply_support(x=4, y=0, type="roller")
         """
@@ -770,6 +774,7 @@ class Structure2d:
             self.loads[-2].is_support_reaction = True
 
             self.beam.bc_deflection.append((unwarap_x, 0))
+
             return Rv, Rh
 
         elif type == "roller":
@@ -782,6 +787,7 @@ class Structure2d:
             self.loads[-1].is_support_reaction = True
 
             self.beam.bc_deflection.append((unwarap_x, 0))
+
             return Rv
 
         elif type == "fixed":
@@ -804,6 +810,7 @@ class Structure2d:
             self.loads[-3].is_support_reaction = True
 
             self.beam.bc_deflection.append((unwarap_x, 0))
+
             # This i think sould be slope of the beam at this point beacause 0 is assuming supports and horizontal members
             # unwrap is already called so it should be extaracatble from the unwrapped position
             self.beam.bc_slope.append((unwarap_x, 0))
@@ -816,7 +823,7 @@ class Structure2d:
         Parameters
         ==========
         *args : dict
-            Variables representing the reaction loads.
+            Variables representing the reaction loads
 
         Returns:
             dict: A dictionary containing the solved reaction loads for the structure
@@ -856,6 +863,7 @@ class Structure2d:
         ...     global_angle=s.members[0].angle_deg + 270,
         ...     order=-1,
         ... )
+
         >>> Rv1 = s.apply_support(x=15, y=2, type="roller")
         >>> Rv2, Rh2 = s.apply_support(x=0, y=0, type="pin")
         >>> s.solve_for_reaction_loads(Rv1, Rv2, Rh2)
@@ -987,6 +995,7 @@ class Structure2d:
             unwarap_x = self._find_unwrapped_position(x, y)
             return self.beam.shear_force().subs(Symbol("x"), unwarap_x)
 
+
     def plot_shear_force(self):
         """
         Plots the shear force diagram for the beam.
@@ -996,6 +1005,7 @@ class Structure2d:
         """
 
         self.beam.plot_shear_force()
+
 
     def bending_moment(self, x=None, y=None):
         """
@@ -1027,6 +1037,7 @@ class Structure2d:
             unwarap_x = self._find_unwrapped_position(x, y)
             return self.beam.bending_moment().subs(Symbol("x"), unwarap_x)
 
+
     def plot_bending_moment(self):
         """
         Plots the bending moment diagram for the beam.
@@ -1036,6 +1047,7 @@ class Structure2d:
         """
 
         self.beam.plot_bending_moment()
+
 
     def summary(self, verbose=True, round_digits=None):
         """
@@ -1072,6 +1084,7 @@ class Structure2d:
         ===================== Structure Summary =====================
         <BLANKLINE>
         Reaction Loads:
+
         R_v   [0.00,0.00]  (0.00)                = -5.0
         R_v   [4.00,0.00]  (4.00)                = -5.0
         R_h   [0.00,0.00]  (0.00)                = 0.0
@@ -1257,6 +1270,7 @@ class Structure2d:
             ...     end_x=3,
             ...     end_y=4,
             ... )
+
             >>> Rv1 = s.apply_support(x=7, y=-1, type="roller")
             >>> Rv2, Rh2 = s.apply_support(x=0, y=0, type="pin")
             >>> s.solve_for_reaction_loads(Rv1, Rv2, Rh2)
@@ -1296,7 +1310,7 @@ class Structure2d:
             ...     order=0,
             ...     end_x=3,
             ...     end_y=4,
-            ... )
+            ...
             >>> Rv1 = s.apply_support(x=7, y=-1, type="roller")
             >>> Rv2, Rh2 = s.apply_support(x=0, y=0, type="pin")
             >>> s.solve_for_reaction_loads(Rv1, Rv2, Rh2)
@@ -1319,6 +1333,7 @@ class Structure2d:
             >>> Rv1, Rh1 = s.apply_support(x=0, y=0, type="pin")
             >>> Rv2 = s.apply_support(x=7/2, y=0, type="roller")
             >>> Rv3, Rh3, T1 = s.apply_support(x=7, y=0, type="fixed")
+
             >>> s.draw(show_load_values=True, forced_load_size=2, draw_support_icons=True) #doctest: +SKIP
         """
 
