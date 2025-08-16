@@ -1,5 +1,6 @@
 from sympy.physics.continuum_mechanics.structure2d import Structure2d
 from sympy.core.symbol import Symbol, symbols
+from sympy.core.numbers import Rational
 from sympy.functions import SingularityFunction
 from sympy.simplify.simplify import simplify
 # from sympy import pi, cos, sin, rad, sympify
@@ -63,8 +64,8 @@ def test_structure2d_symbolic(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -76,7 +77,7 @@ def test_structure2d_symbolic(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2, 0, value, global_angle=angle, order=-1)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads
     for load_symbol, expected_value in reaction_loads.items():
@@ -208,8 +209,8 @@ def test_numerical_pointload(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -221,7 +222,7 @@ def test_numerical_pointload(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2, 0, value, global_angle=angle, order=-1)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads SSSADASDAS
     for load_symbol, expected_value in reaction_loads.items():
@@ -357,8 +358,8 @@ def test_numerical_distload(test_beam_fixture, test_data):
     assert member.angle == 0
 
     # Apply supports
-    Rv_1, Rh_1 = s.apply_support(x=0, y=0, type='pin')
-    Rv_2 = s.apply_support(x=4, y=0, type='roller')
+    s.apply_support(x=0, y=0, type='pin')
+    s.apply_support(x=4, y=0, type='roller')
 
     # Check support properties
     supports = [(0, 0, 'pin'), (4, 0, 'roller')]
@@ -370,7 +371,7 @@ def test_numerical_distload(test_beam_fixture, test_data):
 
     # Apply load and solve for reactions
     s.apply_load(2,0,value,global_angle=angle,order=0,end_x=3,end_y=0)
-    s.solve_for_reaction_loads(Rv_1, Rh_1, Rv_2)
+    s.solve_for_reaction_loads()
 
     # Check reaction loads SSSADASDAS
     for load_symbol, expected_value in reaction_loads.items():
@@ -435,11 +436,11 @@ def test_structure2d_symbolic_onebend(test_beam_fixture_one_bend, test_data):
 
 
     s.apply_load(start_x=1.5,start_y=2,value=value,global_angle=0,order=-1)
-    Rh1, Rv1, T1 = s.apply_support(x=7, y=-1, type='fixed')
+    s.apply_support(x=7, y=-1, type='fixed')
 
     s.apply_load(5,1.5,value/2,global_angle=s.members[1].angle_deg + 270,order=0,end_x=7,end_y=-1)
     s.apply_load(0,0,value*0.8,global_angle=270,order=0,end_x=3,end_y=4)
-    s.solve_for_reaction_loads(Rh1,Rv1,T1)
+    s.solve_for_reaction_loads()
     # s.draw()
     # Check reaction loads
     for load_symbol, expected_value in reaction_loads.items():
@@ -454,3 +455,500 @@ def test_structure2d_symbolic_onebend(test_beam_fixture_one_bend, test_data):
         print(math.isclose(float(s.bending_moment(loc)),float(expected_bm),rel_tol=1e-2,abs_tol=1e-2))
 
         assert math.isclose(float(s.bending_moment(loc)),float(expected_bm),rel_tol=1e-2,abs_tol=1e-2) == True
+
+
+def test_frame_problems():
+    # Alex Example 1(https://oit.tudelft.nl/Macaulays-method/theses/Macaulay-2D/BEP%20v1.html)
+    # 3 member structure with mixed loads
+    # one fixed support
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 15, 0, -1)
+    s.apply_load(2, 0, 16, 270, -1)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 6, 1.5)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -55
+    assert result[Symbol('R_h__11,__-1')] == -15
+    assert result[Symbol('T__11,__-1')] == -435
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 15, 270, -1)
+    s.apply_load(2, 0, 16, 0, -1)
+    s.apply_load(0, 0, 6, 0, 0, 4, 0)
+    s.apply_load(4, 0, 6, 0, 0, 6, 1.5)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -15
+    assert result[Symbol('R_h__11,__-1')] == -55
+    assert result[Symbol('T__11,__-1')] == Rational(-9875,100)
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(4, 0, 15, 0, -1)
+    s.apply_load(0, 0, 16, 270, -1)
+    s.apply_load(4, 0, 6, 270, 0, 6, 1.5)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -31
+    assert result[Symbol('R_h__11,__-1')] == -15
+    assert result[Symbol('T__11,__-1')] == -251
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(4, 0, 15, 0, -1)
+    s.apply_load(0, 0, 16, 270, -1)
+    s.apply_load(4, 0, 6, 270, 0, 6, 1.5)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -31
+    assert result[Symbol('R_h__11,__-1')] == -15
+    assert result[Symbol('T__11,__-1')] == -251
+
+    # Alex Example 2(https://oit.tudelft.nl/Macaulays-method/theses/Macaulay-2D/BEP%20v2.html)
+    # without the hinge
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 0, 0, 3, 4)
+    s.apply_load(3, 4, 60, 0, 0, 6, 0)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 200
+    assert result[Symbol('R_h__0,__0')] == -300
+    assert result[Symbol('R_v__6,__0')] == -200
+    assert result[Symbol('R_h__6,__0')] == -300
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(3, 4, 60, 0, -1)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 40
+    assert result[Symbol('R_h__0,__0')] == -30
+    assert result[Symbol('R_v__6,__0')] == -40
+    assert result[Symbol('R_h__6,__0')] == -30
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(3, 4, 60, 0, -1)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 40
+    assert result[Symbol('R_h__0,__0')] == -30
+    assert result[Symbol('R_v__6,__0')] == -40
+    assert result[Symbol('R_h__6,__0')] == -30
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 270, -1)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == -60
+    assert result[Symbol('R_h__0,__0')] == 0
+    assert result[Symbol('R_v__6,__0')] == 0
+    assert result[Symbol('R_h__6,__0')] == 0
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 0, -1)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 0
+    assert result[Symbol('R_h__0,__0')] == -60
+    assert result[Symbol('R_v__6,__0')] == 0
+    assert result[Symbol('R_h__6,__0')] == 0
+
+
+    # Alex Example 3(https://oit.tudelft.nl/Macaulays-method/theses/Macaulay-2D/BEP%20v3.html)
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, 10**4, 10**4)
+    s.add_member(3, 4, 7, 1, E, I, A)
+    s.apply_load(3, 4, 60, 270, -1)
+    s.apply_load(3, 4, 18, 0, 0, 7, 1)
+    s.apply_support(0, 0,"fixed")
+    s.apply_support(7, 1,"roller")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == Rational(-44421,1120)
+    assert result[Symbol('R_h__0,__0')] == -90
+    assert result[Symbol('R_v__7,__1')] == Rational(-22779,1120)
+    assert result[Symbol('T__0,__0')] == Rational(42021,160)
+
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, 10**2, 10**2)
+    s.add_member(3, 4, 7, 1, E, I, A)
+    s.apply_load(3, 4, 18, 0, 0, 7, 1)
+    s.apply_support(0, 0,"fixed")
+    s.apply_support(7, 1,"roller")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == Rational(5427,1120)
+    assert result[Symbol('R_h__0,__0')] == -90
+    assert result[Symbol('R_v__7,__1')] == Rational(-5427,1120)
+    assert result[Symbol('T__0,__0')] == Rational(30573,160)
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 15, 0, -1)
+    s.apply_load(8, 3, 16, 270, -1)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 8, 3)
+    s.apply_load(8, 3, 6, 270, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -100
+    assert result[Symbol('R_h__11,__-1')] == -15
+    assert result[Symbol('T__11,__-1')] == -444
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(8, 3, 15, 0, -1)
+    s.apply_load(2, 0, 16, 270, -1)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 8, 3)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -70
+    assert result[Symbol('R_h__11,__-1')] == -15
+    assert result[Symbol('T__11,__-1')] == -450
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, 100, 100, 100)
+    s.add_member(3, 4, 7, 1, 100, 100, 100)
+    s.apply_load(3, 4, 18, 0, 0, 7, 1)
+    s.apply_support(0, 0,"fixed")
+    s.apply_support(7, 1,"roller")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == Rational(5427,1120)
+    assert result[Symbol('R_h__0,__0')] == -90
+    assert result[Symbol('R_v__7,__1')] == Rational(-5427,1120)
+    assert result[Symbol('T__0,__0')] == Rational(30573,160)
+
+
+def test_distributed_loads():
+    # pure horizontal UDL load through out the structure
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 0, 0, 3, 4)
+    s.apply_load(3, 4, 60, 0, 0, 6, 0)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 200
+    assert result[Symbol('R_h__0,__0')] == -300
+    assert result[Symbol('R_v__6,__0')] == -200
+    assert result[Symbol('R_h__6,__0')] == -300
+
+
+    s = Structure2d()
+    #pure vertical UDL load through out the structure
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 8, 3)
+    s.apply_load(8, 3, 6, 270, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -84
+    assert result[Symbol('R_h__11,__-1')] == 0
+    assert result[Symbol('T__11,__-1')] == -411
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 8, 3)
+    s.apply_load(8, 3, 6, 270, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -84
+    assert result[Symbol('R_h__11,__-1')] == 0
+    assert result[Symbol('T__11,__-1')] == -411
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 6, 0, 0, 4, 0)
+    s.apply_load(4, 0, 6, 0, 0, 8, 3)
+    s.apply_load(8, 3, 6, 0, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == 0
+    assert result[Symbol('R_h__11,__-1')] == -84
+    assert result[Symbol('T__11,__-1')] == 159
+
+    # UDL horizontal loads on end members
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 6, 0, 0, 4, 0)
+    s.apply_load(8, 3, 6, 0, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == 0
+    assert result[Symbol('R_h__11,__-1')] == -54
+    assert result[Symbol('T__11,__-1')] == 84
+
+    # UDL vertical loads on end members
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 6, 270, 0, 4, 0)
+    s.apply_load(8, 3, 6, 270, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -54
+    assert result[Symbol('R_h__11,__-1')] == 0
+    assert result[Symbol('T__11,__-1')] == -261
+
+    #UDL loads from middle of the members
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(2, 0, 6, 270, 0, 4, 0)
+    s.apply_load(4, 0, 6, 270, 0, 6, 1.5)
+    s.apply_load(9.5, 1, 6, 270, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == -42
+    assert result[Symbol('R_h__11,__-1')] == 0
+    assert result[Symbol('T__11,__-1')] == Rational(-19725,100)
+
+    #UDL loads from middle of the members
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(2, 0, 6, 0, 0, 4, 0)
+    s.apply_load(4, 0, 6, 0, 0, 6, 1.5)
+    s.apply_load(9.5, 1, 6, 0, 0, 11, -1)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == 0
+    assert result[Symbol('R_h__11,__-1')] == -42
+    assert result[Symbol('T__11,__-1')] == Rational(5325,100)
+
+
+def test_hinge_problems():
+    # Alex Example 2(https://oit.tudelft.nl/Macaulays-method/theses/Macaulay-2D/BEP%20v2.html)
+    #horizontal UDL with hinge
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 0, 0, 3, 4)
+    s.apply_load(3, 4, 60, 0, 0, 6, 0)
+    s.apply_rotation_hinge(3, 4)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 200
+    assert result[Symbol('R_h__0,__0')] == -300
+    assert result[Symbol('R_v__6,__0')] == -200
+    assert result[Symbol('R_h__6,__0')] == -300
+
+    # vertical UDL with hinge
+    E, I, A = symbols('E I A')
+    s = Structure2d()
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 270, 0, 3, 4)
+    s.apply_load(3, 4, 60, 270, 0, 6, 0)
+    s.apply_rotation_hinge(3, 4)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == -300
+    assert result[Symbol('R_h__0,__0')] == Rational(225,2)
+    assert result[Symbol('R_v__6,__0')] == -300
+    assert result[Symbol('R_h__6,__0')] == Rational(-225,2)
+
+    # point load on hinge
+    s = Structure2d()
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(3, 4, 60, 270, -1)
+    s.apply_rotation_hinge(3, 4)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == -30
+    assert result[Symbol('R_h__0,__0')] == Rational(45,2)
+    assert result[Symbol('R_v__6,__0')] == -30
+    assert result[Symbol('R_h__6,__0')] == Rational(-45,2)
+
+    # vertical point load on hinge
+    E, I, A = symbols('E I A')
+    s = Structure2d()
+    E = 10**4
+    I = 10**4
+    A=10**4
+    s.add_member(0,0,4,3,E,I,A)
+    s.add_member(4,3,7,-1,E,I,A)
+    s.apply_support(0,0,"pin")
+    s.apply_support(7,-1,"pin")
+    s.apply_rotation_hinge(4,3)
+    s.apply_load(4,3,375,270,-1)
+
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == -135
+    assert result[Symbol('R_h__0,__0')] == 180
+    assert result[Symbol('R_v__7,__-1')] == -240
+    assert result[Symbol('R_h__7,__-1')] == -180
+
+
+def test_joint_loads():
+    # loadon a joint
+    E = 10**4
+    I = 10**4
+    A = 10**4
+    s1 = Structure2d()
+    s1.add_member(0, 0, 3, 4, E, I, A)
+    s1.add_member(3, 4, 8, 16, E, I, A)
+    s1.add_member(8, 16, 15, 40, E, I, A)
+    s1.apply_support(0, 0, "pin")
+    s1.apply_support(15, 40, "pin")
+    s1.apply_load(3, 4, 150, 270, -1)
+    s1.apply_rotation_hinge(3, 4)
+    result = s1.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 120
+    assert result[Symbol('R_h__0,__0')] == -90
+    assert result[Symbol('R_v__15,__40')] == -270
+    assert result[Symbol('R_h__15,__40')] == 90
+
+    # horizontal load on a hinge
+    E = 10**4
+    I = 10**4
+    A = 10**4
+    s1 = Structure2d()
+    s1.add_member(0, 0, 3, 4, E, I, A)
+    s1.add_member(3, 4, 8, 16, E, I, A)
+    s1.add_member(8, 16, 15, 40, E, I, A)
+    s1.apply_support(0, 0, "pin")
+    s1.apply_support(15, 40, "pin")
+    s1.apply_load(3, 4, 150, 0, -1)
+    s1.apply_rotation_hinge(3, 4)
+    result = s1.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 360
+    assert result[Symbol('R_h__0,__0')] == -270
+    assert result[Symbol('R_v__15,__40')] == -360
+    assert result[Symbol('R_h__15,__40')] == 120
+
+    # mix of point loads in different directions
+    s2 = Structure2d()
+    E = 10**4
+    I = 10**4
+    A = 10**4
+    s2.add_member(0, 0, 5, 12, E, I, A)
+    s2.add_member(5, 12, 14, 52, E, I, A)
+    s2.apply_support(0, 0, "pin")
+    s2.apply_support(14, 52, "pin")
+    s2.apply_load(0, 0, 150, 0, -1)
+    s2.apply_load(5, 12, 150, 270, -1)
+    s2.apply_load(14, 52, 150, 180, -1)
+    s2.apply_rotation_hinge(5, 12)
+    result = s2.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == Rational(4050,23)
+    assert result[Symbol('R_h__0,__0')] == Rational(-10275,46)
+    assert result[Symbol('R_v__14,__52')] == Rational(-7500,23)
+    assert result[Symbol('R_h__14,__52')] == Rational(10275,46)
+
+
+def test_moment_loads():
+    # 3 member structure with mixed loads
+    # one fixed support
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 4, 0, E, I, A)
+    s.add_member(4, 0, 8, 3, E, I, A)
+    s.add_member(8, 3, 11, -1, E, I, A)
+    s.apply_load(0, 0, 15, 0, -2)
+    s.apply_load(2, 0, 16, 270, -2)
+    s.apply_load(6, 1.5, -6, 270, -2)
+    s.apply_load(0, 0, 6, 270, -2)
+    s.apply_support(11,-1,"fixed")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__11,__-1')] == 0
+    assert result[Symbol('R_h__11,__-1')] == 0
+    assert result[Symbol('T__11,__-1')] == -10
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, I, A)
+    s.add_member(3, 4, 6, 0, E, I, A)
+    s.apply_load(0, 0, 60, 0, -2)
+    s.apply_load(3, 4, 60, 0, 0, 6, 0)
+    s.apply_rotation_hinge(3, 4)
+    s.apply_support(0, 0,"pin")
+    s.apply_support(6, 0,"pin")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == 100
+    assert result[Symbol('R_h__0,__0')] == -75
+    assert result[Symbol('R_v__6,__0')] == -100
+    assert result[Symbol('R_h__6,__0')] == -225
+
+    s = Structure2d()
+    E, I, A = symbols('E I A')
+    s.add_member(0, 0, 3, 4, E, 10**4, 10**4)
+    s.add_member(3, 4, 7, 1, E, I, A)
+    s.apply_load(3, 4, 60, 270, -2)
+    s.apply_load(3, 4, 18, 0, 0, 7, 1)
+    s.apply_support(0, 0,"fixed")
+    s.apply_support(7, 1,"roller")
+    result = s.solve_for_reaction_loads()
+    assert result[Symbol('R_v__0,__0')] == Rational(-639,160)
+    assert result[Symbol('R_h__0,__0')] == -90
+    assert result[Symbol('R_v__7,__1')] == Rational(639,160)
+    assert result[Symbol('T__0,__0')] == Rational(30873,160)
